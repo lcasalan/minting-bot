@@ -4,6 +4,7 @@
 # import magiceden
 # #import helper functions for monkeylabs
 # import monkelabs
+import subprocess
 
 
 from flask import Flask
@@ -18,36 +19,32 @@ def home():
 
 
 @app.route('/hello/')
-@app.route('/mint')
+@app.route('/mass')
 
-def mint():
+def mass():
 
-    def getConfig():
-        configFile = open("config.json", 'r')
-        return list(json.load(configFile).values())
+    def to_list(txt_file):
+        with open(txt_file,'r') as f:
+            listl=[]
+            for line in f:
+                strip_lines=line.strip()
+                # listli=line.split()
+                print(strip_lines)
+                m=listl.append(strip_lines)
+            print(listl)
+        return listl
 
+    list1 = to_list('airdrop.txt')
 
-    #gets config
-    config = getConfig()
+    list2 = to_list('tokens.txt')
 
-    #if windows True, else False (mac, linux)
-    isWindows = True if os.name == 'nt' else False
+    for i in range(len(list1) - 1):
+        print("spl-token transfer " + list2[i] + " 0.019 " + list1[i] + " --fund-recipient")
+        list_files = subprocess.Popen(
+            ["spl-token", "transfer", list2[i], "0.019" , list1[i], "--fund-recipient"])
+        list_files.wait()
 
-    #if mint on magiceden.io
-    if "magiceden.io" in config[0]:
-        print("Found magiceden.io link")
-        magiceden.mint(config, isWindows)
-        
-    #if mint on monkeylabs.io
-    elif "monkelabs.io" in config[0]:
-        print("Found monkelabs.io link")
-        monkelabs.mint(config, isWindows)
-
-    #if platform not supported
-    else:
-        print("Could not recognize link")
-
-    return render_template('mint.html')
+    return render_template('mass.html')
 
 if __name__ == "__main__":
     app.run(debug=True)
